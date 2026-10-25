@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>海外スモールビジネス図鑑｜記事番号検索</title>
+<meta name="description" content="HELLO!編集部「海外スモールビジネス図鑑」の記事番号検索ページ。動画で紹介された記事を番号からすぐに探せます。">
+<meta name="robots" content="noindex">
+<style>
+  :root{
+    --bg:#F6F5F3;
+    --card:#FFFFFF;
+    --border:#E8E6E1;
+    --text:#1F1C19;
+    --text-soft:#716C66;
+    --text-faint:#A39E97;
+    --accent:#2E2A26;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+    font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    padding:28px 16px 56px;
+  }
+  .wrap{ max-width:460px; margin:0 auto; }
+
+  .brand{ display:flex; flex-direction:column; align-items:center; margin-bottom:22px; }
+  .brand__icon{
+    width:76px; height:76px; border-radius:50%; background:#C9CCA8;
+    display:flex; align-items:center; justify-content:center; margin-bottom:10px;
+    font-family:Georgia,serif; font-weight:700; font-size:26px; color:#2E2A26;
+  }
+  .brand__name{ font-size:15px; font-weight:700; }
+
+  .search-wrap{ position:relative; margin-bottom:22px; }
+  .search-input{
+    width:100%; padding:14px 48px 14px 18px; border-radius:999px; border:1px solid var(--border);
+    background:var(--card); font-size:16px; color:var(--text); outline:none;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .search-input::placeholder{ color:var(--text-faint); }
+  .search-input:focus{ border-color:#C9CCA8; }
+  .search-icon{
+    position:absolute; right:16px; top:50%; transform:translateY(-50%);
+    width:20px; height:20px; color:var(--text-faint); pointer-events:none;
+  }
+
+  .count-hint{ font-size:12px; color:var(--text-faint); margin:0 4px 12px; }
+
+  .list{ display:flex; flex-direction:column; gap:12px; }
+  .card{
+    display:flex; align-items:stretch; gap:14px; background:var(--card); border:1px solid var(--border);
+    border-radius:18px; padding:10px; text-decoration:none; color:inherit;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .card:active{ background:#F1EFEA; }
+  .card__thumb{
+    width:84px; height:84px; flex-shrink:0; border-radius:12px; overflow:hidden; background:#E8E6E1;
+  }
+  .card__thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .card__body{ display:flex; flex-direction:column; justify-content:center; min-width:0; }
+  .card__no{ font-size:12px; font-weight:700; color:var(--text-soft); margin-bottom:3px; }
+  .card__title{ font-size:14px; font-weight:600; line-height:1.5; }
+
+  .empty{
+    text-align:center; color:var(--text-faint); font-size:13px; padding:40px 20px; line-height:1.8;
+  }
+  .footer-note{ text-align:center; color:var(--text-faint); font-size:11px; margin-top:32px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <div class="brand__icon">H!</div>
+      <div class="brand__name">Hello! 編集部｜海外スモールビジネス図鑑</div>
+    </div>
+
+    <div class="search-wrap">
+      <input id="searchInput" class="search-input" type="text" inputmode="numeric"
+        placeholder="記事番号で検索（例：16）" autocomplete="off">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </div>
+
+    <p class="count-hint" id="countHint"></p>
+    <div class="list" id="list"></div>
+    <p class="footer-note">海外スモールビジネス図鑑</p>
+  </div>
+
+<script>
+(function(){
+  var listEl = document.getElementById('list');
+  var countEl = document.getElementById('countHint');
+  var inputEl = document.getElementById('searchInput');
+  var articles = [];
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function normalizeQuery(q){
+    // 「16」「016」「#16」いずれも数字だけに正規化して比較する
+    var digits = q.replace(/[^0-9]/g, '');
+    if (!digits) return null;
+    return parseInt(digits, 10);
+  }
+
+  function render(items){
+    listEl.innerHTML = '';
+    if (!items.length) {
+      var empty = document.createElement('div');
+      empty.className = 'empty';
+      empty.textContent = '該当する記事が見つかりませんでした。番号をご確認ください。';
+      listEl.appendChild(empty);
+      countEl.textContent = '';
+      return;
+    }
+    countEl.textContent = '全' + items.length + '記事';
+    items.forEach(function(a){
+      var card = document.createElement('a');
+      card.className = 'card';
+      card.href = a.url;
+      card.target = '_blank';
+      card.rel = 'noopener';
+      var imgHtml = a.image
+        ? '<img src="' + esc(a.image) + '" alt="" loading="lazy">'
+        : '';
+      card.innerHTML =
+        '<div class="card__thumb">' + imgHtml + '</div>' +
+        '<div class="card__body">' +
+          '<div class="card__no">#' + esc(a.no) + '</div>' +
+          '<div class="card__title">' + esc(a.title) + '</div>' +
+        '</div>';
+      listEl.appendChild(card);
+    });
+  }
+
+  function applyFilter(){
+    var q = inputEl.value.trim();
+    if (!q) { render(articles); return; }
+    var n = normalizeQuery(q);
+    if (n === null) { render([]); return; }
+    render(articles.filter(function(a){ return a.no === n; }));
+  }
+
+  inputEl.addEventListener('input', applyFilter);
+
+  fetch('articles.json', { cache: 'no-store' })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      articles = (data.articles || []).slice().sort(function(a, b){ return b.no - a.no; });
+      render(articles);
+    })
+    .catch(function(){
+      countEl.textContent = '';
+      var empty = document.createElement('div');
+      empty.className = 'empty';
+      empty.textContent = '記事データを読み込めませんでした。時間をおいて再度お試しください。';
+      listEl.appendChild(empty);
+    });
+})();
+</script>
+</body>
+</html>
