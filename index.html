@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>海外スモールビジネス図鑑｜記事番号検索</title>
-<meta name="description" content="HELLO!編集部「海外スモールビジネス図鑑」の記事番号検索ページ。動画で紹介された記事を番号からすぐに探せます。">
+<title>海外スモールビジネス図鑑｜楽天ROOMリンク集</title>
+<meta name="description" content="HELLO!編集部「海外スモールビジネス図鑑」で紹介した商品・道具の楽天ROOMリンク集。記事番号からすぐに探せます。">
 <meta name="robots" content="noindex">
 <style>
   :root{
@@ -65,6 +65,17 @@
   .card__body{ display:flex; flex-direction:column; justify-content:center; min-width:0; }
   .card__no{ font-size:12px; font-weight:700; color:var(--text-soft); margin-bottom:3px; }
   .card__title{ font-size:14px; font-weight:600; line-height:1.5; }
+  .card__room{ font-size:12px; color:var(--text-soft); margin-top:4px; }
+
+  .card--multi{ display:block; }
+  .card--multi .card__head{ display:flex; align-items:stretch; gap:14px; margin-bottom:10px; }
+  .card__rooms{ display:flex; flex-direction:column; gap:6px; }
+  .room-link{
+    display:block; font-size:12.5px; font-weight:600; color:var(--text); text-decoration:none;
+    background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:9px 12px;
+  }
+  .room-link:active{ background:#F1EFEA; }
+  .room-link::before{ content:"楽天ROOMで見る｜"; color:var(--text-faint); font-weight:500; }
 
   .empty{
     text-align:center; color:var(--text-faint); font-size:13px; padding:40px 20px; line-height:1.8;
@@ -81,7 +92,7 @@
 
     <div class="search-wrap">
       <input id="searchInput" class="search-input" type="text" inputmode="numeric"
-        placeholder="記事番号で検索（例：16）" autocomplete="off">
+        placeholder="記事番号で検索（例：3）" autocomplete="off">
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
@@ -117,27 +128,49 @@
     if (!items.length) {
       var empty = document.createElement('div');
       empty.className = 'empty';
-      empty.textContent = '該当する記事が見つかりませんでした。番号をご確認ください。';
+      empty.textContent = '該当する記事が見つかりませんでした。番号をご確認ください（楽天ROOMリンクがある号のみ表示しています）。';
       listEl.appendChild(empty);
       countEl.textContent = '';
       return;
     }
     countEl.textContent = '全' + items.length + '記事';
     items.forEach(function(a){
-      var card = document.createElement('a');
-      card.className = 'card';
-      card.href = a.url;
-      card.target = '_blank';
-      card.rel = 'noopener';
+      var rooms = a.rooms || [];
       var imgHtml = a.image
         ? '<img src="' + esc(a.image) + '" alt="" loading="lazy">'
         : '';
-      card.innerHTML =
-        '<div class="card__thumb">' + imgHtml + '</div>' +
-        '<div class="card__body">' +
-          '<div class="card__no">#' + esc(a.no) + '</div>' +
-          '<div class="card__title">' + esc(a.title) + '</div>' +
-        '</div>';
+      var card;
+      if (rooms.length <= 1) {
+        // 商品が1点だけなら、カード全体を1つのリンクにする（従来の見た目のまま）
+        card = document.createElement('a');
+        card.className = 'card';
+        card.href = rooms.length ? rooms[0].url : '#';
+        card.target = '_blank';
+        card.rel = 'noopener';
+        card.innerHTML =
+          '<div class="card__thumb">' + imgHtml + '</div>' +
+          '<div class="card__body">' +
+            '<div class="card__no">#' + esc(a.no) + '</div>' +
+            '<div class="card__title">' + esc(a.title) + '</div>' +
+            (rooms.length ? '<div class="card__room">' + esc(rooms[0].label) + '</div>' : '') +
+          '</div>';
+      } else {
+        // 商品が複数あるときは、記事の見出しの下に商品ごとのROOMリンクを並べる
+        card = document.createElement('div');
+        card.className = 'card card--multi';
+        var roomsHtml = rooms.map(function(r){
+          return '<a class="room-link" href="' + esc(r.url) + '" target="_blank" rel="noopener">' + esc(r.label) + '</a>';
+        }).join('');
+        card.innerHTML =
+          '<div class="card__head">' +
+            '<div class="card__thumb">' + imgHtml + '</div>' +
+            '<div class="card__body">' +
+              '<div class="card__no">#' + esc(a.no) + '</div>' +
+              '<div class="card__title">' + esc(a.title) + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card__rooms">' + roomsHtml + '</div>';
+      }
       listEl.appendChild(card);
     });
   }
