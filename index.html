@@ -120,22 +120,18 @@
     return parseInt(digits, 10);
   }
 
-  // 記事（note号）ごとの楽天ROOMリンクを、どの記事かを問わない「商品番号つきの1本のリスト」に
-  // フラット化する（2026-11-20：note記事との紐付け表示を廃止。コメントで番号を伝えてもらい、
-  // 詳細は個別にDM等で送る運用に変えるため、ここでは商品の一覧性だけを見せる）。
+  // 記事（note号）ごとの楽天ROOMリンクを、タイトル等は出さず「商品の一覧」としてフラット化する。
+  // 番号は記事の号数をそのまま使う（2026-11-20：コメントで番号を伝えてもらい、詳細は編集長が
+  // 個別に送る運用のため、編集部側で追える号数をそのまま番号として使う）。
   function flattenProducts(articles){
     var newestFirst = (articles || []).slice().sort(function(a, b){ return b.no - a.no; });
     var flat = [];
     newestFirst.forEach(function(a){
       (a.rooms || []).forEach(function(r){
-        flat.push({ title: r.label, url: r.url, image: a.image });
+        flat.push({ no: a.no, title: r.label, url: r.url, image: a.image });
       });
     });
-    var total = flat.length;
-    return flat.map(function(p, i){
-      p.no = total - i; // 新しい商品ほど大きい番号（moneying.biz型の採番に合わせる）
-      return p;
-    });
+    return flat;
   }
 
   function render(items){
