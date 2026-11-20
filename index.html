@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>海外スモールビジネス図鑑｜楽天ROOMリンク集</title>
-<meta name="description" content="HELLO!編集部「海外スモールビジネス図鑑」で紹介した商品・道具の楽天ROOMリンク集。記事番号からすぐに探せます。">
+<meta name="description" content="HELLO!編集部「海外スモールビジネス図鑑」で紹介した商品・道具の楽天ROOMリンク集。商品番号からすぐに探せます。">
 <meta name="robots" content="noindex">
 <style>
   :root{
@@ -66,20 +66,8 @@
   }
   .card__thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
   .card__body{ display:flex; flex-direction:column; justify-content:center; min-width:0; flex:1; }
-  .card__no{ font-size:11px; font-weight:700; color:var(--text-faint); margin-bottom:2px; }
   .card__title{ font-size:14.5px; font-weight:700; line-height:1.45; }
-  .card__room{ font-size:12px; color:var(--text-soft); margin-top:4px; }
   .card__chevron{ flex-shrink:0; width:18px; height:18px; color:var(--text-faint); }
-
-  .card--multi{ display:block; }
-  .card--multi .card__head{ display:flex; align-items:center; gap:14px; margin-bottom:10px; }
-  .card__rooms{ display:flex; flex-direction:column; gap:6px; }
-  .room-link{
-    display:flex; align-items:center; justify-content:space-between; font-size:12.5px; font-weight:600; color:var(--text); text-decoration:none;
-    background:var(--bg); border:none; border-radius:12px; padding:10px 14px;
-  }
-  .room-link:active{ background:#E3DED3; }
-  .room-link::before{ content:"楽天ROOMで見る｜"; color:var(--text-faint); font-weight:500; }
 
   .empty{
     text-align:center; color:var(--text-faint); font-size:13px; padding:40px 20px; line-height:1.8;
@@ -95,13 +83,13 @@
       <div class="brand__bio">
         <span>🌍 海外の面白い小さな商売を紹介</span>
         <span>🛍️ 記事に出てきた商品は楽天ROOMでチェック</span>
-        <span>🔎 気になる記事は番号を入力して検索👇</span>
+        <span>🔎 気になる商品は番号を入力して検索👇</span>
       </div>
     </div>
 
     <div class="search-wrap">
       <input id="searchInput" class="search-input" type="text" inputmode="numeric"
-        placeholder="記事番号で検索（例：3）" autocomplete="off">
+        placeholder="商品番号で検索（例：3）" autocomplete="off">
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
@@ -117,7 +105,7 @@
   var listEl = document.getElementById('list');
   var countEl = document.getElementById('countHint');
   var inputEl = document.getElementById('searchInput');
-  var articles = [];
+  var products = [];
 
   function esc(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
@@ -126,10 +114,28 @@
   }
 
   function normalizeQuery(q){
-    // 「16」「016」「#16」いずれも数字だけに正規化して比較する
+    // 「3」「03」「#3」いずれも数字だけに正規化して比較する
     var digits = q.replace(/[^0-9]/g, '');
     if (!digits) return null;
     return parseInt(digits, 10);
+  }
+
+  // 記事（note号）ごとの楽天ROOMリンクを、どの記事かを問わない「商品番号つきの1本のリスト」に
+  // フラット化する（2026-11-20：note記事との紐付け表示を廃止。コメントで番号を伝えてもらい、
+  // 詳細は個別にDM等で送る運用に変えるため、ここでは商品の一覧性だけを見せる）。
+  function flattenProducts(articles){
+    var newestFirst = (articles || []).slice().sort(function(a, b){ return b.no - a.no; });
+    var flat = [];
+    newestFirst.forEach(function(a){
+      (a.rooms || []).forEach(function(r){
+        flat.push({ title: r.label, url: r.url, image: a.image });
+      });
+    });
+    var total = flat.length;
+    return flat.map(function(p, i){
+      p.no = total - i; // 新しい商品ほど大きい番号（moneying.biz型の採番に合わせる）
+      return p;
+    });
   }
 
   function render(items){
@@ -137,60 +143,37 @@
     if (!items.length) {
       var empty = document.createElement('div');
       empty.className = 'empty';
-      empty.textContent = '該当する記事が見つかりませんでした。番号をご確認ください（楽天ROOMリンクがある号のみ表示しています）。';
+      empty.textContent = '該当する商品が見つかりませんでした。番号をご確認ください。';
       listEl.appendChild(empty);
       countEl.textContent = '';
       return;
     }
-    countEl.textContent = '全' + items.length + '記事';
-    items.forEach(function(a){
-      var rooms = a.rooms || [];
-      var imgHtml = a.image
-        ? '<img src="' + esc(a.image) + '" alt="" loading="lazy">'
+    countEl.textContent = '全' + items.length + '商品';
+    items.forEach(function(p){
+      var imgHtml = p.image
+        ? '<img src="' + esc(p.image) + '" alt="" loading="lazy">'
         : '';
-      var card;
-      if (rooms.length <= 1) {
-        // 商品が1点だけなら、カード全体を1つのリンクにする（従来の見た目のまま）
-        card = document.createElement('a');
-        card.className = 'card';
-        card.href = rooms.length ? rooms[0].url : '#';
-        card.target = '_blank';
-        card.rel = 'noopener';
-        card.innerHTML =
-          '<div class="card__thumb">' + imgHtml + '</div>' +
-          '<div class="card__body">' +
-            '<div class="card__no">#' + esc(a.no) + '</div>' +
-            '<div class="card__title">' + esc(a.title) + '</div>' +
-            (rooms.length ? '<div class="card__room">' + esc(rooms[0].label) + '</div>' : '') +
-          '</div>' +
-          '<svg class="card__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
-      } else {
-        // 商品が複数あるときは、記事の見出しの下に商品ごとのROOMリンクを並べる
-        card = document.createElement('div');
-        card.className = 'card card--multi';
-        var roomsHtml = rooms.map(function(r){
-          return '<a class="room-link" href="' + esc(r.url) + '" target="_blank" rel="noopener">' + esc(r.label) + '</a>';
-        }).join('');
-        card.innerHTML =
-          '<div class="card__head">' +
-            '<div class="card__thumb">' + imgHtml + '</div>' +
-            '<div class="card__body">' +
-              '<div class="card__no">#' + esc(a.no) + '</div>' +
-              '<div class="card__title">' + esc(a.title) + '</div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="card__rooms">' + roomsHtml + '</div>';
-      }
+      var card = document.createElement('a');
+      card.className = 'card';
+      card.href = p.url;
+      card.target = '_blank';
+      card.rel = 'noopener';
+      card.innerHTML =
+        '<div class="card__thumb">' + imgHtml + '</div>' +
+        '<div class="card__body">' +
+          '<div class="card__title">' + esc(p.no) + '. ' + esc(p.title) + '</div>' +
+        '</div>' +
+        '<svg class="card__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
       listEl.appendChild(card);
     });
   }
 
   function applyFilter(){
     var q = inputEl.value.trim();
-    if (!q) { render(articles); return; }
+    if (!q) { render(products); return; }
     var n = normalizeQuery(q);
     if (n === null) { render([]); return; }
-    render(articles.filter(function(a){ return a.no === n; }));
+    render(products.filter(function(p){ return p.no === n; }));
   }
 
   inputEl.addEventListener('input', applyFilter);
@@ -198,14 +181,14 @@
   fetch('articles.json', { cache: 'no-store' })
     .then(function(r){ return r.json(); })
     .then(function(data){
-      articles = (data.articles || []).slice().sort(function(a, b){ return b.no - a.no; });
-      render(articles);
+      products = flattenProducts(data.articles || []);
+      render(products);
     })
     .catch(function(){
       countEl.textContent = '';
       var empty = document.createElement('div');
       empty.className = 'empty';
-      empty.textContent = '記事データを読み込めませんでした。時間をおいて再度お試しください。';
+      empty.textContent = '商品データを読み込めませんでした。時間をおいて再度お試しください。';
       listEl.appendChild(empty);
     });
 })();
