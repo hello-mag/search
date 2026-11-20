@@ -8,13 +8,14 @@
 <meta name="robots" content="noindex">
 <style>
   :root{
-    --bg:#F6F5F3;
+    --bg:#EDE8DF;
     --card:#FFFFFF;
     --border:#E8E6E1;
     --text:#1F1C19;
     --text-soft:#716C66;
     --text-faint:#A39E97;
     --accent:#2E2A26;
+    --ring:#F2B705;
   }
   *{ box-sizing:border-box; }
   html,body{ margin:0; padding:0; }
@@ -27,54 +28,57 @@
   }
   .wrap{ max-width:460px; margin:0 auto; }
 
-  .brand{ display:flex; flex-direction:column; align-items:center; margin-bottom:22px; }
+  .brand{ display:flex; flex-direction:column; align-items:center; margin-bottom:22px; text-align:center; }
   .brand__icon{
-    width:76px; height:76px; border-radius:50%; margin-bottom:10px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.12); overflow:hidden;
-    background:#C9CCA8;
+    width:100px; height:100px; border-radius:50%; margin-bottom:14px;
+    overflow:hidden; background:#C9CCA8;
+    border:3px solid var(--ring); padding:3px; background-clip:content-box;
+    box-shadow:0 1px 3px rgba(0,0,0,0.1);
   }
-  .brand__icon img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .brand__name{ font-size:15px; font-weight:700; }
+  .brand__icon img{ width:100%; height:100%; object-fit:cover; display:block; border-radius:50%; }
+  .brand__name{ font-size:19px; font-weight:800; margin-bottom:8px; }
+  .brand__bio{ font-size:13px; color:var(--text-soft); line-height:1.7; }
+  .brand__bio span{ display:block; }
 
   .search-wrap{ position:relative; margin-bottom:22px; }
   .search-input{
-    width:100%; padding:14px 48px 14px 18px; border-radius:999px; border:1px solid var(--border);
-    background:var(--card); font-size:16px; color:var(--text); outline:none;
-    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+    width:100%; padding:14px 18px 14px 44px; border-radius:999px; border:none;
+    background:var(--card); font-size:15px; color:var(--text); outline:none;
+    box-shadow:0 1px 3px rgba(0,0,0,0.06);
   }
   .search-input::placeholder{ color:var(--text-faint); }
-  .search-input:focus{ border-color:#C9CCA8; }
   .search-icon{
-    position:absolute; right:16px; top:50%; transform:translateY(-50%);
-    width:20px; height:20px; color:var(--text-faint); pointer-events:none;
+    position:absolute; left:16px; top:50%; transform:translateY(-50%);
+    width:18px; height:18px; color:var(--text-faint); pointer-events:none;
   }
 
   .count-hint{ font-size:12px; color:var(--text-faint); margin:0 4px 12px; }
 
   .list{ display:flex; flex-direction:column; gap:12px; }
   .card{
-    display:flex; align-items:stretch; gap:14px; background:var(--card); border:1px solid var(--border);
-    border-radius:18px; padding:10px; text-decoration:none; color:inherit;
-    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+    display:flex; align-items:center; gap:14px; background:var(--card); border:none;
+    border-radius:18px; padding:12px; text-decoration:none; color:inherit;
+    box-shadow:0 1px 3px rgba(0,0,0,0.06);
   }
-  .card:active{ background:#F1EFEA; }
+  .card:active{ background:#F8F6F2; }
   .card__thumb{
-    width:84px; height:84px; flex-shrink:0; border-radius:12px; overflow:hidden; background:#E8E6E1;
+    width:56px; height:56px; flex-shrink:0; border-radius:12px; overflow:hidden; background:#E8E6E1;
   }
   .card__thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .card__body{ display:flex; flex-direction:column; justify-content:center; min-width:0; }
-  .card__no{ font-size:12px; font-weight:700; color:var(--text-soft); margin-bottom:3px; }
-  .card__title{ font-size:14px; font-weight:600; line-height:1.5; }
+  .card__body{ display:flex; flex-direction:column; justify-content:center; min-width:0; flex:1; }
+  .card__no{ font-size:11px; font-weight:700; color:var(--text-faint); margin-bottom:2px; }
+  .card__title{ font-size:14.5px; font-weight:700; line-height:1.45; }
   .card__room{ font-size:12px; color:var(--text-soft); margin-top:4px; }
+  .card__chevron{ flex-shrink:0; width:18px; height:18px; color:var(--text-faint); }
 
   .card--multi{ display:block; }
-  .card--multi .card__head{ display:flex; align-items:stretch; gap:14px; margin-bottom:10px; }
+  .card--multi .card__head{ display:flex; align-items:center; gap:14px; margin-bottom:10px; }
   .card__rooms{ display:flex; flex-direction:column; gap:6px; }
   .room-link{
-    display:block; font-size:12.5px; font-weight:600; color:var(--text); text-decoration:none;
-    background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:9px 12px;
+    display:flex; align-items:center; justify-content:space-between; font-size:12.5px; font-weight:600; color:var(--text); text-decoration:none;
+    background:var(--bg); border:none; border-radius:12px; padding:10px 14px;
   }
-  .room-link:active{ background:#F1EFEA; }
+  .room-link:active{ background:#E3DED3; }
   .room-link::before{ content:"楽天ROOMで見る｜"; color:var(--text-faint); font-weight:500; }
 
   .empty{
@@ -87,7 +91,12 @@
   <div class="wrap">
     <div class="brand">
       <div class="brand__icon"><img src="assets/icon.jpg" alt="Hello! 編集部"></div>
-      <div class="brand__name">Hello! 編集部｜海外スモールビジネス図鑑</div>
+      <div class="brand__name">海外スモールビジネス図鑑</div>
+      <div class="brand__bio">
+        <span>🌍 海外の面白い小さな商売を紹介</span>
+        <span>🛍️ 記事に出てきた商品は楽天ROOMでチェック</span>
+        <span>🔎 気になる記事は番号を入力して検索👇</span>
+      </div>
     </div>
 
     <div class="search-wrap">
@@ -153,7 +162,8 @@
             '<div class="card__no">#' + esc(a.no) + '</div>' +
             '<div class="card__title">' + esc(a.title) + '</div>' +
             (rooms.length ? '<div class="card__room">' + esc(rooms[0].label) + '</div>' : '') +
-          '</div>';
+          '</div>' +
+          '<svg class="card__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
       } else {
         // 商品が複数あるときは、記事の見出しの下に商品ごとのROOMリンクを並べる
         card = document.createElement('div');
