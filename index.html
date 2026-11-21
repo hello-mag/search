@@ -192,7 +192,7 @@
     var flat = [];
     newestFirst.forEach(function(a){
       (a.rooms || []).forEach(function(r){
-        flat.push({ no: a.no, title: r.label, url: r.url, image: a.image });
+        flat.push({ no: a.no, title: r.label, url: r.url, image: r.image || a.image });
       });
     });
     return flat;
