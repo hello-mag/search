@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>海外スモールビジネス図鑑｜楽天ROOMリンク集</title>
-<meta name="description" content="HELLO!編集部「海外スモールビジネス図鑑」で紹介した商品・道具の楽天ROOMリンク集。商品番号からすぐに探せます。">
+<title>海外スモールビジネス図鑑｜記事一覧</title>
+<meta name="description" content="HELLO!編集部「海外スモールビジネス図鑑」の記事一覧。投稿で案内した番号から、記事をすぐに探せます。">
 <meta name="robots" content="noindex">
 <style>
   :root{
@@ -124,8 +124,8 @@
   <div class="wrap">
     <div class="ticker">
       <div class="ticker__track">
-        <span>📣 ※楽天アフィリエイトとして、紹介した商品の購入により収入を得ています</span>
-        <span>📣 ※楽天アフィリエイトとして、紹介した商品の購入により収入を得ています</span>
+        <span>📣 ※記事内の楽天ROOMのアフィリエイトリンクから、商品の購入によって収入を得ています</span>
+        <span>📣 ※記事内の楽天ROOMのアフィリエイトリンクから、商品の購入によって収入を得ています</span>
       </div>
     </div>
 
@@ -144,14 +144,14 @@
       <div class="brand__name">海外スモールビジネス図鑑</div>
       <div class="brand__bio">
         <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3c2.5 2.5 3.8 5.7 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.7-3.8-9s1.3-6.5 3.8-9z"/></svg>海外の面白い小さな商売を紹介</span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 4 6v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6l-2-4"/><path d="M4 6h16"/><path d="M9 10a3 3 0 0 0 6 0"/></svg>記事に出てきた商品は楽天ROOMでチェック</span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>気になる商品は番号を入力して検索</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 4 6v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6l-2-4"/><path d="M4 6h16"/><path d="M9 10a3 3 0 0 0 6 0"/></svg>投稿で案内した番号の記事を読めます</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>番号を入力して記事を検索</span>
       </div>
     </div>
 
     <div class="search-wrap">
       <input id="searchInput" class="search-input" type="text" inputmode="numeric"
-        placeholder="商品番号で検索（例：3）" autocomplete="off">
+        placeholder="記事番号で検索（例：3）" autocomplete="off">
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
@@ -184,18 +184,11 @@
     return parseInt(digits, 10);
   }
 
-  // 記事（note号）ごとの楽天ROOMリンクを、タイトル等は出さず「商品の一覧」としてフラット化する。
-  // 番号は記事の号数をそのまま使う（2026-11-20：コメントで番号を伝えてもらい、詳細は編集長が
-  // 個別に送る運用のため、編集部側で追える号数をそのまま番号として使う）。
+  // 2026-11-22：楽天ROOMの商品一覧から、記事（note号）の一覧に戻した。番号＝記事の号数。
+  // 商品リンクはここに混ぜず、各記事の末尾（楽天ROOM導線）に置く運用。
   function flattenProducts(articles){
-    var newestFirst = (articles || []).slice().sort(function(a, b){ return b.no - a.no; });
-    var flat = [];
-    newestFirst.forEach(function(a){
-      (a.rooms || []).forEach(function(r){
-        flat.push({ no: a.no, title: r.label, url: r.url, image: r.image || a.image });
-      });
-    });
-    return flat;
+    return (articles || []).slice().sort(function(a, b){ return b.no - a.no; })
+      .map(function(a){ return { no: a.no, title: a.title, url: a.noteUrl, image: a.image }; });
   }
 
   function render(items){
@@ -203,12 +196,12 @@
     if (!items.length) {
       var empty = document.createElement('div');
       empty.className = 'empty';
-      empty.textContent = '該当する商品が見つかりませんでした。番号をご確認ください。';
+      empty.textContent = '該当する記事が見つかりませんでした。番号をご確認ください。';
       listEl.appendChild(empty);
       countEl.textContent = '';
       return;
     }
-    countEl.textContent = '全' + items.length + '商品';
+    countEl.textContent = '全' + items.length + '記事';
     items.forEach(function(p){
       var imgHtml = p.image
         ? '<img src="' + esc(p.image) + '" alt="" loading="lazy">'
@@ -284,7 +277,7 @@
       countEl.textContent = '';
       var empty = document.createElement('div');
       empty.className = 'empty';
-      empty.textContent = '商品データを読み込めませんでした。時間をおいて再度お試しください。';
+      empty.textContent = '記事データを読み込めませんでした。時間をおいて再度お試しください。';
       listEl.appendChild(empty);
     });
 })();
